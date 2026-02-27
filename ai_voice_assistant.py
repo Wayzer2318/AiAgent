@@ -6,6 +6,13 @@ import pyttsx3
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import PromptTemplate, chat
 import langchain_ollama
+import subprocess
+import os
+import sys
+
+# Suppress ALSA/JACK noise
+devnull = open(os.devnull, "w")
+os.dup2(devnull.fileno(), 2)  # redirect stderr to /dev/null
 
 
 # loading model
@@ -23,25 +30,26 @@ recognizer = sr.Recognizer()
 
 
 # speak func
+def listen():
+    try:
+        with sr.Microphone() as source:
+            print("Listening...")
+            recognizer.adjust_for_ambient_noise(source)
+            audio = recognizer.listen(source)
+            text = recognizer.recognize_google(audio)
+            print(f"You said: {text}")
+            return text.lower()
+    except sr.UnknownValueError:
+        print("Could not understand audio")
+        return None
+    except sr.RequestError as e:
+        print(f"Speech recognition error: {e}")
+        return None
+
+
 def speak(text):
     engine.say(text)
     engine.runAndWait()
-
-
-# listen func
-def listen():
-    with sr.Microphone() as source:
-        print("listening...")
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source)
-    try:
-        query = recognizer.recognize_amazon(audio)
-        print(f"you said : {query}")
-    except sr.UnknownValueError:
-        print(" i did not understand")
-        return ""
-    except sr.RequestError:
-        print("speech rec not available")
 
 
 # chat prompts
