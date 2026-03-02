@@ -1,9 +1,11 @@
-from os import write
-import re
 import requests
 from bs4 import BeautifulSoup
 import streamlit as sl
 from langchain_ollama import OllamaLLM
+import faiss
+import numpy as np
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 
 # load a model
 llm = OllamaLLM(model="mistral")
